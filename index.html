@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>🍅 番茄工具箱 · 番茄钟 / 进制 / 文本 / 二维码</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,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">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-container">
+    <div class="card" id="appCard">
+
+        <!-- 顶层模块导航 -->
+        <div class="module-nav" id="moduleNav">
+            <button class="module-btn active" data-module="pomodoro">🍅 番茄钟</button>
+            <button class="module-btn" data-module="base">🔢 进制</button>
+            <button class="module-btn" data-module="text">📝 文本</button>
+            <button class="module-btn" data-module="qr">🔳 二维码</button>
+        </div>
+
+        <!-- ============ 模块 1：番茄钟 ============ -->
+        <div class="module-view active" id="modulePomodoro">
+            <div class="main-view active" id="mainView">
+                <div class="top-nav">
+                    <div class="nav-title">🍅 番茄工具箱</div>
+                    <div class="nav-buttons">
+                        <button class="nav-btn active" data-view="timer">计时</button>
+                        <button class="nav-btn" data-view="stats">统计</button>
+                        <button class="nav-btn" data-view="settings">设置</button>
+                    </div>
+                </div>
+
+                <!-- 计时子视图 -->
+                <div id="timerSubview">
+                    <div class="header">
+                        <div class="title">
+                            <span>🍅</span>
+                            <span>专注时钟</span>
+                            <span class="nickname-badge" id="homeNickname">👤 专注者</span>
+                            <span class="level-badge" id="levelBadge">⭐ LV0</span>
+                        </div>
+                        <div class="stats">
+                            <div class="tomato-count" id="tomatoCount">
+                                🍅 <span id="countValue">0</span>
+                            </div>
+                            <button class="btn-icon" id="btnSound" title="声音开关">🔊</button>
+                        </div>
+                    </div>
+
+                    <div class="timer-section">
+                        <div class="timer-ring-wrapper">
+                            <svg viewBox="0 0 300 300">
+                                <circle class="ring-bg" cx="150" cy="150" r="125"/>
+                                <circle class="ring-progress" id="ringProgress" cx="150" cy="150" r="125" stroke-dasharray="785.4" stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="timer-display">
+                                <div class="timer-time" id="timerDisplay">25:00</div>
+                                <div class="timer-label" id="timerLabel">剩余时间</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="presets" id="presetContainer">
+                        <button class="preset-btn" data-minutes="1">1分</button>
+                        <button class="preset-btn" data-minutes="5">5分</button>
+                        <button class="preset-btn" data-minutes="10">10分</button>
+                        <button class="preset-btn" data-minutes="20">20分</button>
+                        <button class="preset-btn active" data-minutes="25">25分</button>
+                        <button class="preset-btn" data-minutes="30">30分</button>
+                        <button class="preset-btn" data-minutes="60">1小时</button>
+                        <button class="preset-btn" data-minutes="75">75分</button>
+                        <button class="preset-btn" data-minutes="90">90分</button>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn-control btn-start" id="btnStart">▶ 开始</button>
+                        <button class="btn-control btn-reset" id="btnReset">↻ 重置</button>
+                        <button class="cycle-toggle" id="cycleToggle" title="自动循环模式">🔁 循环</button>
+                    </div>
+                </div>
+
+                <!-- 统计子视图 -->
+                <div id="statsSubview" style="display:none; flex:1; flex-direction:column;">
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="value" id="totalMinutes">0</div>
+                            <div class="label">专注分钟</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="value" id="totalTomatoes">0</div>
+                            <div class="label">获得番茄</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="value" id="levelDisplay">LV0</div>
+                            <div class="label">当前等级</div>
+                        </div>
+                    </div>
+                    <div style="font-weight:600; margin-bottom:8px; color:var(--text-primary);">历史记录</div>
+                    <div class="record-list" id="recordList">
+                        <div class="empty-records">暂无记录，开始第一个番茄吧！</div>
+                    </div>
+                </div>
+
+                <!-- 设置子视图（数据迁移已移除） -->
+                <div id="settingsSubview" style="display:none; flex:1; flex-direction:column;">
+                    <div class="settings-group">
+                        <label>昵称</label>
+                        <input type="text" id="nicknameInput" class="settings-input" placeholder="输入昵称">
+                        <button class="settings-btn btn-change-nickname" id="btnSaveNickname">保存昵称</button>
+                        <div class="settings-error" id="nicknameError"></div>
+                        <div class="settings-success" id="nicknameSuccess"></div>
+                    </div>
+
+                    <div class="settings-group">
+                        <label>工作与休息设置（分钟）</label>
+                        <div style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label style="font-size:12px;">工作</label>
+                                <input type="number" id="workMinutesInput" class="settings-input" min="1" max="180" value="25">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="font-size:12px;">休息</label>
+                                <input type="number" id="restMinutesInput" class="settings-input" min="1" max="60" value="5">
+                            </div>
+                        </div>
+                        <button class="settings-btn" id="btnSaveWorkRest" style="background:var(--tomato); color:#fff;">保存工作/休息设置</button>
+                        <div class="settings-error" id="workRestError"></div>
+                        <div class="settings-success" id="workRestSuccess"></div>
+                    </div>
+
+                    <div class="settings-group">
+                        <label>关于</label>
+                        <p class="hint-text">🍅 番茄钟 · 专注统计<br>本版本已移除「数据迁移（导入/导出数字编码）」功能。<br>数据仅保存在本机浏览器，完全离线可用。</p>
+                    </div>
+                </div>
+
+                <div class="celebration-overlay" id="celebrationOverlay">
+                    <div class="emoji">🎉</div>
+                    <div class="text">时间到！</div>
+                    <div class="sub-text" id="celebrationSubText">干得漂亮，休息一下吧</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ 模块 2：进制转换 ============ -->
+        <div class="module-view" id="moduleBase">
+            <div class="tool-scroll">
+                <div class="tool-panel">
+                    <div class="tool-title">🔢 进制转换</div>
+                    <p class="hint">支持 2–36 任意进制、超大整数（BigInt）与负数，完全离线计算。</p>
+
+                    <label class="field-label">输入数值</label>
+                    <input type="text" id="baseInput" class="tool-input" placeholder="例如 1010 / FF / 123456789012345678901234567890" autocomplete="off" spellcheck="false">
+
+                    <div class="field-row">
+                        <div class="field-col">
+                            <label class="field-label">原进制</label>
+                            <select id="baseFrom" class="tool-select"></select>
+                        </div>
+                        <div class="field-col">
+                            <label class="field-label">目标进制</label>
+                            <select id="baseTo" class="tool-select"></select>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <button class="tool-btn primary" id="btnBaseConvert">转换</button>
+                        <button class="tool-btn ghost" id="btnBaseSwap">⇄ 交换</button>
+                    </div>
+
+                    <label class="field-label">转换结果</label>
+                    <textarea id="baseResult" class="tool-area" rows="2" readonly placeholder="结果会显示在这里"></textarea>
+                    <button class="tool-btn ghost" id="btnBaseCopy">📋 复制结果</button>
+
+                    <div class="section-label">常用进制速览</div>
+                    <div class="kv-list" id="baseQuick"></div>
+                    <div class="tool-error" id="baseError"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ 模块 3：文本处理 ============ -->
+        <div class="module-view" id="moduleText">
+            <div class="tool-scroll">
+                <div class="tool-panel">
+                    <div class="tool-title">📝 文本处理</div>
+                    <p class="hint">所有处理均在本机完成，不上传任何内容。</p>
+
+                    <label class="field-label">输入文本</label>
+                    <textarea id="textInput" class="tool-area" rows="6" placeholder="粘贴或输入要处理的文本…"></textarea>
+
+                    <div class="btn-grid" id="textActions">
+                        <button class="tool-btn" data-text="upper">转大写</button>
+                        <button class="tool-btn" data-text="lower">转小写</button>
+                        <button class="tool-btn" data-text="trim">去首尾空格</button>
+                        <button class="tool-btn" data-text="nospace">删除所有空白</button>
+                        <button class="tool-btn" data-text="noblank">删除空行</button>
+                        <button class="tool-btn" data-text="unique">行去重</button>
+                        <button class="tool-btn" data-text="sort">行排序</button>
+                        <button class="tool-btn" data-text="reverseLines">行倒序</button>
+                        <button class="tool-btn" data-text="reverseChars">反转字符</button>
+                        <button class="tool-btn" data-text="stripTags">去 HTML 标签</button>
+                        <button class="tool-btn" data-text="b64enc">Base64 编码</button>
+                        <button class="tool-btn" data-text="b64dec">Base64 解码</button>
+                        <button class="tool-btn" data-text="urlenc">URL 编码</button>
+                        <button class="tool-btn" data-text="urldec">URL 解码</button>
+                        <button class="tool-btn" data-text="sha256">SHA-256</button>
+                        <button class="tool-btn" data-text="clear">清空</button>
+                    </div>
+
+                    <div class="field-row">
+                        <input type="text" id="findInput" class="tool-input" placeholder="查找">
+                        <input type="text" id="replaceInput" class="tool-input" placeholder="替换为">
+                    </div>
+                    <button class="tool-btn primary" id="btnReplace">查找替换</button>
+
+                    <label class="field-label">输出结果</label>
+                    <textarea id="textOutput" class="tool-area" rows="5" readonly placeholder="处理结果会显示在这里"></textarea>
+                    <div class="field-row">
+                        <button class="tool-btn ghost" id="btnTextCopy">📋 复制结果</button>
+                        <button class="tool-btn ghost" id="btnTextSwap">↑ 结果填回输入</button>
+                    </div>
+
+                    <div class="section-label">文本统计</div>
+                    <div class="kv-list" id="textStats"></div>
+                    <div class="tool-error" id="textError"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ 模块 4：二维码生成 ============ -->
+        <div class="module-view" id="moduleQr">
+            <div class="tool-scroll">
+                <div class="tool-panel">
+                    <div class="tool-title">🔳 二维码生成</div>
+                    <p class="hint">编码算法已内置在本页，完全离线生成，支持中文，不调用任何在线接口。</p>
+
+                    <label class="field-label">要编码的内容</label>
+                    <textarea id="qrInput" class="tool-area" rows="3" placeholder="输入文字、网址或任意文本…"></textarea>
+
+                    <div class="field-row">
+                        <div class="field-col">
+                            <label class="field-label">容错级别</label>
+                            <select id="qrEcc" class="tool-select">
+                                <option value="L">L · 约 7%</option>
+                                <option value="M" selected>M · 约 15%</option>
+                                <option value="Q">Q · 约 25%</option>
+                                <option value="H">H · 约 30%</option>
+                            </select>
+                        </div>
+                        <div class="field-col">
+                            <label class="field-label">模块大小</label>
+                            <select id="qrScale" class="tool-select">
+                                <option value="4">4 px</option>
+                                <option value="6" selected>6 px</option>
+                                <option value="8">8 px</option>
+                                <option value="10">10 px</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <button class="tool-btn primary" id="btnQrGen">生成二维码</button>
+                        <button class="tool-btn ghost" id="btnQrSave">💾 保存 PNG</button>
+                    </div>
+
+                    <div class="qr-wrap"><canvas id="qrCanvas" width="290" height="290"></canvas></div>
+                    <div class="hint" id="qrInfo">尚未生成</div>
+                    <div class="tool-error" id="qrError"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全局成功弹窗 -->
+        <div class="success-overlay" id="successOverlay">
+            <div class="emoji">🥳</div>
+            <div class="text">操作成功</div>
+            <div class="sub-text" id="successMessage">耶耶耶太好了</div>
+            <button class="btn-close-success" id="btnCloseSuccess" type="button">太棒了</button>
+        </div>
+
+    </div>
+</div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
