@@ -52,7 +52,8 @@
         pomodoro: 'modulePomodoro',
         base: 'moduleBase',
         text: 'moduleText',
-        qr: 'moduleQr'
+        qr: 'moduleQr',
+        calc: 'moduleCalc'
     };
     let currentModule = 'pomodoro';
     const moduleBtns = document.querySelectorAll('.module-btn');
@@ -749,11 +750,352 @@
         $('qrInput').value = '你好，世界！Hello World';
     }
 
+    // ============================================================
+    // 模块 5：计算器 + 单位转换（全部离线计算）
+    // ============================================================
+
+    // ---------- 表达式计算引擎（与 Windows / Android 端行为一致） ----------
+    function calcTokenize(expr) {
+        const tokens = [];
+        let i = 0;
+        while (i < expr.length) {
+            const ch = expr[i];
+            if (ch === ' ' || ch === '\t') { i++; continue; }
+            if ((ch >= '0' && ch <= '9') || ch === '.') {
+                let j = i;
+                while (j < expr.length && ((expr[j] >= '0' && expr[j] <= '9') || expr[j] === '.')) j++;
+                tokens.push({ type: 'num', value: parseFloat(expr.slice(i, j)) });
+                i = j;
+            } else if ('+-*/()%'.indexOf(ch) >= 0) {
+                tokens.push({ type: ch });
+                i++;
+            } else {
+                throw new Error('无效字符: ' + ch);
+            }
+        }
+        return tokens;
+    }
+
+    function calcParse(tokens) {
+        let pos = 0;
+        function peek() { return pos < tokens.length ? tokens[pos] : null; }
+        function next() { return tokens[pos++]; }
+
+        function parseExpr() {
+            let v = parseTerm();
+            for (;;) {
+                const t = peek();
+                if (t && (t.type === '+' || t.type === '-')) {
+                    next();
+                    const r = parseTerm();
+                    v = t.type === '+' ? v + r : v - r;
+                } else break;
+            }
+            return v;
+        }
+        function parseTerm() {
+            let v = parseFactor();
+            for (;;) {
+                const t = peek();
+                if (t && (t.type === '*' || t.type === '/')) {
+                    next();
+                    const r = parseFactor();
+                    if (t.type === '/' && r === 0) throw new Error('除数不能为 0');
+                    v = t.type === '*' ? v * r : v / r;
+                } else break;
+            }
+            return v;
+        }
+        function parseFactor() {
+            const t = peek();
+            if (t && (t.type === '-' || t.type === '+')) {
+                next();
+                const v = parseFactor();
+                return t.type === '-' ? -v : v;
+            }
+            return parsePrimary();
+        }
+        function parsePrimary() {
+            const t = next();
+            if (!t) throw new Error('表达式不完整');
+            let v;
+            if (t.type === 'num') {
+                v = t.value;
+            } else if (t.type === '(') {
+                v = parseExpr();
+                const close = next();
+                if (!close || close.type !== ')') throw new Error('缺少右括号');
+            } else {
+                throw new Error('无效的表达式');
+            }
+            // 百分比后置运算：50% → 0.5
+            const p = peek();
+            if (p && p.type === '%') { next(); v = v / 100; }
+            return v;
+        }
+
+        const result = parseExpr();
+        if (pos < tokens.length) throw new Error('无效的表达式');
+        return result;
+    }
+
+    function calcEvaluate(expr) {
+        const tokens = calcTokenize(expr);
+        if (tokens.length === 0) throw new Error('表达式为空');
+        return calcParse(tokens);
+    }
+
+    function calcFormat(n) {
+        if (!isFinite(n)) throw new Error('结果超出范围');
+        if (n === 0) return '0';
+        const abs = Math.abs(n);
+        if (abs >= 1e12 || abs < 1e-9) {
+            return n.toExponential(6).replace(/\.?0+e/, 'e');
+        }
+        return parseFloat(n.toPrecision(12)).toString();
+    }
+
+    function calcPretty(expr) {
+        return expr.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−');
+    }
+
+    let calcExpr = '';
+    function calcRefresh() {
+        $('calcExpr').textContent = calcExpr ? calcPretty(calcExpr) : '0';
+        const resultEl = $('calcResult');
+        // 去掉可能的一元负号后，仍含运算符才做实时预览
+        const body = calcExpr.replace(/^-/, '');
+        if (/[+\-*/%]/.test(body)) {
+            try {
+                const v = calcEvaluate(calcExpr);
+                resultEl.textContent = '= ' + calcFormat(v);
+                return;
+            } catch (e) { /* 预览失败时静默 */ }
+        }
+        resultEl.textContent = '';
+    }
+    function calcLastNumberHasDot() {
+        const m = calcExpr.match(/[0-9.]*$/);
+        return m ? m[0].indexOf('.') >= 0 : false;
+    }
+    function calcPress(key) {
+        if (key === 'C') {
+            calcExpr = '';
+        } else if (key === 'back') {
+            calcExpr = calcExpr.slice(0, -1);
+        } else if (key === '=') {
+            try {
+                const v = calcEvaluate(calcExpr);
+                calcExpr = calcFormat(v);
+                $('calcResult').textContent = '';
+                $('calcExpr').textContent = calcPretty(calcExpr);
+                return;
+            } catch (e) {
+                $('calcResult').textContent = e.message || '计算错误';
+                return;
+            }
+        } else if (key === '.') {
+            if (calcLastNumberHasDot()) return;
+            if (!/[0-9]$/.test(calcExpr)) calcExpr += '0';
+            calcExpr += '.';
+        } else if ('+-*/%'.indexOf(key) >= 0) {
+            if (!calcExpr) {
+                if (key !== '-') return;
+            } else if (/[+\-*/%]$/.test(calcExpr)) {
+                calcExpr = calcExpr.slice(0, -1) + key;
+            } else {
+                calcExpr += key;
+            }
+        } else {
+            calcExpr += key;
+        }
+        calcRefresh();
+    }
+
+    // ---------- 单位转换 ----------
+    const UNIT_CATEGORIES = {
+        length: {
+            name: '长度',
+            units: [
+                { name: '毫米', factor: 0.001 },
+                { name: '厘米', factor: 0.01 },
+                { name: '米', factor: 1 },
+                { name: '千米', factor: 1000 },
+                { name: '英寸', factor: 0.0254 },
+                { name: '英尺', factor: 0.3048 },
+                { name: '码', factor: 0.9144 },
+                { name: '英里', factor: 1609.344 },
+                { name: '海里', factor: 1852 }
+            ]
+        },
+        weight: {
+            name: '重量',
+            units: [
+                { name: '毫克', factor: 0.001 },
+                { name: '克', factor: 1 },
+                { name: '千克', factor: 1000 },
+                { name: '吨', factor: 1000000 },
+                { name: '斤', factor: 500 },
+                { name: '磅', factor: 453.59237 },
+                { name: '盎司', factor: 28.349523125 }
+            ]
+        },
+        area: {
+            name: '面积',
+            units: [
+                { name: '平方毫米', factor: 0.000001 },
+                { name: '平方厘米', factor: 0.0001 },
+                { name: '平方米', factor: 1 },
+                { name: '平方千米', factor: 1000000 },
+                { name: '公顷', factor: 10000 },
+                { name: '亩', factor: 666.6666666666667 },
+                { name: '平方英尺', factor: 0.09290304 },
+                { name: '英亩', factor: 4046.8564224 }
+            ]
+        },
+        volume: {
+            name: '体积',
+            units: [
+                { name: '毫升', factor: 0.001 },
+                { name: '升', factor: 1 },
+                { name: '立方米', factor: 1000 },
+                { name: '立方厘米', factor: 0.001 },
+                { name: '加仑(美)', factor: 3.785411784 },
+                { name: '夸脱(美)', factor: 0.946352946 },
+                { name: '品脱(美)', factor: 0.473176473 }
+            ]
+        },
+        temperature: {
+            name: '温度',
+            units: [
+                { name: '摄氏度', factor: 0 },
+                { name: '华氏度', factor: 0 },
+                { name: '开尔文', factor: 0 }
+            ]
+        },
+        speed: {
+            name: '速度',
+            units: [
+                { name: '米/秒', factor: 1 },
+                { name: '千米/小时', factor: 0.2777777777777778 },
+                { name: '英里/小时', factor: 0.44704 },
+                { name: '节', factor: 0.5144444444444445 }
+            ]
+        },
+        time: {
+            name: '时间',
+            units: [
+                { name: '毫秒', factor: 0.001 },
+                { name: '秒', factor: 1 },
+                { name: '分钟', factor: 60 },
+                { name: '小时', factor: 3600 },
+                { name: '天', factor: 86400 },
+                { name: '周', factor: 604800 },
+                { name: '年', factor: 31536000 }
+            ]
+        },
+        data: {
+            name: '数据存储',
+            units: [
+                { name: '字节', factor: 1 },
+                { name: 'KB', factor: 1024 },
+                { name: 'MB', factor: 1048576 },
+                { name: 'GB', factor: 1073741824 },
+                { name: 'TB', factor: 1099511627776 }
+            ]
+        }
+    };
+
+    function unitTempToC(unitName, v) {
+        if (unitName === '摄氏度') return v;
+        if (unitName === '华氏度') return (v - 32) * 5 / 9;
+        return v - 273.15; // 开尔文
+    }
+    function unitCTo(unitName, c) {
+        if (unitName === '摄氏度') return c;
+        if (unitName === '华氏度') return c * 9 / 5 + 32;
+        return c + 273.15; // 开尔文
+    }
+    function unitConvert(category, fromIdx, toIdx, value) {
+        const cat = UNIT_CATEGORIES[category];
+        if (category === 'temperature') {
+            const c = unitTempToC(cat.units[fromIdx].name, value);
+            return unitCTo(cat.units[toIdx].name, c);
+        }
+        return value * cat.units[fromIdx].factor / cat.units[toIdx].factor;
+    }
+
+    function unitFillSelects() {
+        const cat = $('unitCategory').value;
+        const units = UNIT_CATEGORIES[cat].units;
+        const from = $('unitFrom');
+        const to = $('unitTo');
+        const keepFrom = from.value;
+        const keepTo = to.value;
+        from.innerHTML = '';
+        to.innerHTML = '';
+        units.forEach((u, idx) => {
+            const o1 = document.createElement('option');
+            o1.value = String(idx);
+            o1.textContent = u.name;
+            from.appendChild(o1);
+            const o2 = document.createElement('option');
+            o2.value = String(idx);
+            o2.textContent = u.name;
+            to.appendChild(o2);
+        });
+        const defFrom = units.length > 3 ? 2 : 0;
+        const defTo = units.length > 3 ? 3 : (units.length === 3 ? 1 : units.length - 1);
+        from.value = units[parseInt(keepFrom, 10)] ? keepFrom : String(defFrom);
+        to.value = units[parseInt(keepTo, 10)] ? keepTo : String(defTo);
+    }
+
+    function unitDoConvert() {
+        const cat = $('unitCategory').value;
+        const raw = $('unitValue').value.trim();
+        const fromIdx = parseInt($('unitFrom').value, 10);
+        const toIdx = parseInt($('unitTo').value, 10);
+        const units = UNIT_CATEGORIES[cat].units;
+        if (!raw) { $('unitError').textContent = '请输入要转换的数值'; $('unitResult').textContent = '—'; return; }
+        const value = Number(raw);
+        if (!isFinite(value)) { $('unitError').textContent = '数值格式不正确'; $('unitResult').textContent = '—'; return; }
+        try {
+            const v = unitConvert(cat, fromIdx, toIdx, value);
+            $('unitResult').textContent = calcFormat(v) + ' ' + units[toIdx].name;
+            $('unitResultLabel').textContent = value + ' ' + units[fromIdx].name + ' =';
+            $('unitError').textContent = '';
+        } catch (e) {
+            $('unitError').textContent = '转换失败：' + e.message;
+        }
+    }
+
+    function initCalc() {
+        $('calcKeys').addEventListener('click', (e) => {
+            const btn = e.target.closest('.calc-key');
+            if (!btn) return;
+            calcPress(btn.dataset.key);
+        });
+        unitFillSelects();
+        $('unitCategory').addEventListener('change', () => { unitFillSelects(); unitDoConvert(); });
+        $('unitFrom').addEventListener('change', unitDoConvert);
+        $('unitTo').addEventListener('change', unitDoConvert);
+        $('unitValue').addEventListener('input', unitDoConvert);
+        $('btnUnitSwap').addEventListener('click', () => {
+            const f = $('unitFrom').value;
+            $('unitFrom').value = $('unitTo').value;
+            $('unitTo').value = f;
+            unitDoConvert();
+        });
+        unitDoConvert();
+        calcRefresh();
+    }
+
     // ==================== 初始化 ====================
     initPomodoro();
     initBase();
     initText();
     initQr();
+    initCalc();
 })();
 
 

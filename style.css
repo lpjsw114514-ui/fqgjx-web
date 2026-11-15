@@ -805,6 +805,63 @@ input.tool-input, textarea.tool-input { min-width: 0; }
     background: #fff;
 }
 
+/* ============ 模块 5：计算器 / 单位转换 ============ */
+.calc-display {
+    background: #fffaf8;
+    border: 2px solid #f0e0d8;
+    border-radius: 16px;
+    padding: 14px 16px;
+    text-align: right;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.calc-expr {
+    font-family: var(--font-mono);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary);
+    word-break: break-all;
+    min-height: 34px;
+    user-select: text;
+}
+.calc-result {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tomato);
+    min-height: 22px;
+    margin-top: 4px;
+    word-break: break-all;
+    user-select: text;
+}
+
+.calc-keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.calc-key {
+    padding: 13px 4px;
+    border: 1px solid #f0e0d8;
+    border-radius: var(--radius-btn);
+    background: #fffaf8;
+    color: var(--text-primary);
+    font-size: 19px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    transition: all var(--transition);
+}
+.calc-key:active { transform: scale(0.94); background: var(--tomato); color: #fff; }
+.calc-key.op { background: #fff0eb; color: var(--tomato); }
+.calc-key.fn { background: #f7ece7; color: var(--text-secondary); font-size: 16px; }
+.calc-key.eq {
+    background: var(--tomato);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(232, 80, 58, 0.28);
+}
+.calc-key.eq:active { background: var(--tomato-dark); }
+
 @media (max-width: 360px) {
     .module-btn { font-size: 11px; padding: 8px 1px; }
     .btn-grid { grid-template-columns: repeat(2, 1fr); }
