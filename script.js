@@ -1204,6 +1204,209 @@
     }
 
     // ============================================================
+    // 模块 3 附：矢量化（颜色量化 + marching squares 轮廓追踪）
+    // 算法与 Android 端 ToolCore.Vec 逐步骤一致，保证三端输出相同：
+    // 1) 降采样长边 400px → 2) RGB 高 3 位直方图取前 12 主色，每像素指派最近主色
+    // 3) 每层颜色生成 0/1 掩膜，marching squares 追踪闭合轮廓（交点在共享边中点）
+    // 4) Douglas-Peucker 简化（eps 0.8）→ Chaikin 一次平滑
+    // 5) 按像素数降序逐层输出 <path fill-rule="evenodd">
+    // ============================================================
+    const VEC_MAX_EDGE = 400;
+    const VEC_MAX_COLORS = 12;
+    const VEC_MAX_PATHS = 4000;
+    const VEC_EPSILON = 0.8;
+    const VEC_V_BASE = 300000; // 垂直边键的基数（水平边键 = y*512 + x）
+
+    function vecQuantize(data, w, h) {
+        const bins = new Map();
+        for (let i = 0; i < w * h; i++) {
+            const p = i * 4;
+            const a = data[p + 3];
+            if (a < 128) continue; // 透明像素不参与量化
+            // 统一铺白底（a=255 时结果不变），直方图与指派必须用同一套颜色
+            const r = Math.round((data[p] * a + 255 * (255 - a)) / 255);
+            const g = Math.round((data[p + 1] * a + 255 * (255 - a)) / 255);
+            const b = Math.round((data[p + 2] * a + 255 * (255 - a)) / 255);
+            const key = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+            bins.set(key, (bins.get(key) || 0) + 1);
+        }
+        if (bins.size === 0) bins.set(((255 >> 3) << 10) | ((255 >> 3) << 5) | (255 >> 3), 1);
+        const sorted = [...bins.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0]);
+        const palette = sorted.slice(0, VEC_MAX_COLORS).map(([key]) => [
+            ((key >> 10) & 31) * 8 + 4,
+            ((key >> 5) & 31) * 8 + 4,
+            (key & 31) * 8 + 4
+        ]);
+        const index = new Int16Array(w * h);
+        for (let i = 0; i < w * h; i++) {
+            const p = i * 4;
+            const a = data[p + 3];
+            if (a < 128) { index[i] = -1; continue; }
+            const r = Math.round((data[p] * a + 255 * (255 - a)) / 255);
+            const g = Math.round((data[p + 1] * a + 255 * (255 - a)) / 255);
+            const b = Math.round((data[p + 2] * a + 255 * (255 - a)) / 255);
+            let best = 0, bestD = Infinity;
+            for (let c = 0; c < palette.length; c++) {
+                const dr = r - palette[c][0], dg = g - palette[c][1], db = b - palette[c][2];
+                const d = dr * dr + dg * dg + db * db;
+                if (d < bestD) { bestD = d; best = c; }
+            }
+            index[i] = best;
+        }
+        return { palette, index };
+    }
+
+    function vecContours(mask, w, h) {
+        const sample = (x, y) => (x < 0 || y < 0 || x >= w || y >= h) ? 0 : mask[y * w + x];
+        const adj = new Map();
+        const segs = [];
+        function addSeg(a, b) {
+            const id = segs.length;
+            segs.push([a, b]);
+            if (!adj.has(a)) adj.set(a, []);
+            if (!adj.has(b)) adj.set(b, []);
+            adj.get(a).push([b, id]);
+            adj.get(b).push([a, id]);
+        }
+        // 注意：单元格需覆盖 [-1, w-1]×[-1, h-1]（外侧采样为 0），
+        // 否则贴上/左边界的轮廓段缺失，闭合轮廓会被截断
+        for (let y = -1; y < h; y++) {
+            for (let x = -1; x < w; x++) {
+                const tl = sample(x, y), tr = sample(x + 1, y), bl = sample(x, y + 1), br = sample(x + 1, y + 1);
+                const code = (tl ? 1 : 0) | (tr ? 2 : 0) | (br ? 4 : 0) | (bl ? 8 : 0);
+                if (code === 0 || code === 15) continue;
+                const center = (tl + tr + br + bl) >= 2 ? 1 : 0;
+                // 边键：+1 偏移保证 x/y 为 -1 时键仍为正且不与其它边冲突
+                const T = (y + 1) * 512 + (x + 1);                   // 水平边 (x,y)-(x+1,y)
+                const R = VEC_V_BASE + (y + 1) * 512 + x + 2;         // 垂直边 (x+1,y)-(x+1,y+1)
+                const B = (y + 2) * 512 + (x + 1);                    // 水平边 (x,y+1)-(x+1,y+1)
+                const L = VEC_V_BASE + (y + 1) * 512 + (x + 1);       // 垂直边 (x,y)-(x,y+1)
+                switch (code) {
+                    case 1: case 14: addSeg(L, T); break;
+                    case 2: case 13: addSeg(T, R); break;
+                    case 4: case 11: addSeg(R, B); break;
+                    case 8: case 7: addSeg(B, L); break;
+                    case 3: case 12: addSeg(L, R); break;
+                    case 6: case 9: addSeg(T, B); break;
+                    case 5:
+                        if (center) { addSeg(L, T); addSeg(R, B); } else { addSeg(T, R); addSeg(B, L); }
+                        break;
+                    case 10:
+                        if (center) { addSeg(T, R); addSeg(B, L); } else { addSeg(L, T); addSeg(R, B); }
+                        break;
+                }
+            }
+        }
+        const pointOf = (key) => (key < VEC_V_BASE)
+            ? [key % 512 - 1 + 0.5, Math.floor(key / 512) - 1]
+            : [(key - VEC_V_BASE) % 512 - 1, Math.floor((key - VEC_V_BASE) / 512) - 1 + 0.5];
+        const used = new Uint8Array(segs.length);
+        const contours = [];
+        for (let s = 0; s < segs.length; s++) {
+            if (used[s]) continue;
+            used[s] = 1;
+            let a = segs[s][0], b = segs[s][1];
+            const contour = [pointOf(a), pointOf(b)];
+            while (b !== a) {
+                let nextId = -1, nextOther = -1;
+                for (const [other, id] of adj.get(b)) {
+                    if (!used[id]) { nextId = id; nextOther = other; break; }
+                }
+                if (nextId < 0) break; // 理论上闭合，异常时截断
+                used[nextId] = 1;
+                contour.push(pointOf(nextOther));
+                b = nextOther;
+            }
+            if (contour.length >= 4) contours.push(contour);
+        }
+        return contours;
+    }
+
+    function vecSimplify(points, eps) {
+        if (points.length < 3) return points.slice();
+        const keep = new Uint8Array(points.length);
+        keep[0] = keep[points.length - 1] = 1;
+        const stack = [[0, points.length - 1]];
+        while (stack.length) {
+            const [lo, hi] = stack.pop();
+            if (hi - lo < 2) continue;
+            const ax = points[lo][0], ay = points[lo][1];
+            const dx = points[hi][0] - ax, dy = points[hi][1] - ay;
+            const len2 = dx * dx + dy * dy;
+            let maxD = -1, maxI = -1;
+            for (let i = lo + 1; i < hi; i++) {
+                const px = points[i][0], py = points[i][1];
+                let d;
+                if (len2 === 0) {
+                    d = (px - ax) * (px - ax) + (py - ay) * (py - ay);
+                } else {
+                    let t = ((px - ax) * dx + (py - ay) * dy) / len2;
+                    t = t < 0 ? 0 : t > 1 ? 1 : t;
+                    const cx = ax + t * dx, cy = ay + t * dy;
+                    d = (px - cx) * (px - cx) + (py - cy) * (py - cy);
+                }
+                if (d > maxD) { maxD = d; maxI = i; }
+            }
+            if (maxD > eps * eps) {
+                keep[maxI] = 1;
+                stack.push([lo, maxI], [maxI, hi]);
+            }
+        }
+        const out = [];
+        for (let i = 0; i < points.length; i++) if (keep[i]) out.push(points[i]);
+        return out;
+    }
+
+    function vecChaikin(points) {
+        const n = points.length;
+        if (n < 3) return points.slice();
+        const out = [];
+        for (let i = 0; i < n; i++) {
+            const p = points[i], q = points[(i + 1) % n];
+            out.push([p[0] * 0.75 + q[0] * 0.25, p[1] * 0.75 + q[1] * 0.25]);
+            out.push([p[0] * 0.25 + q[0] * 0.75, p[1] * 0.25 + q[1] * 0.75]);
+        }
+        return out;
+    }
+
+    function vecNum(v) {
+        const r = Math.round(v * 10) / 10;
+        return (r % 1 === 0) ? String(r) : r.toFixed(1);
+    }
+
+    function vecVectorize(data, w, h) {
+        const { palette, index } = vecQuantize(data, w, h);
+        const counts = new Array(palette.length).fill(0);
+        for (let i = 0; i < index.length; i++) if (index[i] >= 0) counts[index[i]]++;
+        const order = counts.map((c, i) => [c, i])
+            .sort((a, b) => b[0] - a[0] || a[1] - b[1]).map(x => x[1]);
+        const paths = [];
+        let pathCount = 0;
+        let capped = false;
+        for (const c of order) {
+            if (counts[c] === 0) continue;
+            const mask = new Uint8Array(w * h);
+            for (let i = 0; i < index.length; i++) mask[i] = index[i] === c ? 1 : 0;
+            const contours = vecContours(mask, w, h);
+            let d = '';
+            for (let contour of contours) {
+                if (pathCount >= VEC_MAX_PATHS) { capped = true; break; }
+                contour = vecChaikin(vecSimplify(contour, VEC_EPSILON));
+                if (contour.length < 3) continue;
+                pathCount++;
+                d += 'M' + contour.map(p => vecNum(p[0]) + ' ' + vecNum(p[1])).join('L') + 'Z';
+            }
+            if (d) {
+                const hex = '#' + palette[c].map(v => v.toString(16).padStart(2, '0')).join('');
+                paths.push('<path fill="' + hex + '" fill-rule="evenodd" d="' + d + '"/>');
+            }
+        }
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h +
+            '" width="' + w + '" height="' + h + '">' + paths.join('') + '</svg>';
+        return { svg, colors: palette.length, paths: pathCount, capped, width: w, height: h };
+    }
+
+    // ============================================================
     // 模块 3 附：图片转换（本机 canvas 完成，不上传）
     // ============================================================
     let imgOriginal = null;
@@ -1213,6 +1416,25 @@
         if (bytes < 1024) return bytes + ' B';
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
         return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+    }
+
+    function imgBaseName() {
+        return (imgOriginal && imgOriginal.name
+            ? imgOriginal.name.replace(/\.[^.]+$/, '') : 'image') || 'image';
+    }
+
+    function imgClearOutput() {
+        if (imgOutput && imgOutput.url) URL.revokeObjectURL(imgOutput.url);
+        imgOutput = null;
+        $('imgOutPreview').removeAttribute('src');
+        $('imgOutText').value = '';
+    }
+
+    function imgSyncMode() {
+        const fmt = $('imgFormat').value;
+        $('imgB64Row').hidden = fmt !== 'base64';
+        $('btnImgCopy').hidden = fmt !== 'base64';
+        $('btnImgSave').textContent = fmt === 'base64' ? '💾 保存文本' : '💾 保存图片';
     }
 
     function initImg() {
@@ -1228,8 +1450,7 @@
             reader.onload = () => {
                 imgOriginal = { name: file.name, type: file.type, size: file.size, dataUrl: reader.result };
                 $('imgSrcPreview').src = reader.result;
-                $('imgOutPreview').removeAttribute('src');
-                imgOutput = null;
+                imgClearOutput();
                 $('imgInfo').textContent = file.name + ' · ' + imgFmtSize(file.size);
                 renderKv($('imgStats'), [
                     ['文件名', file.name],
@@ -1246,37 +1467,112 @@
             $('imgQualityVal').textContent = $('imgQuality').value;
         });
 
+        $('imgFormat').addEventListener('change', () => { imgSyncMode(); imgClearOutput(); });
+        imgSyncMode();
+
         $('btnImgConvert').addEventListener('click', () => {
             if (!imgOriginal) { $('imgError').textContent = '请先选择图片'; return; }
             const fmt = $('imgFormat').value;
-            const probe = document.createElement('canvas');
-            probe.width = probe.height = 1;
-            if (fmt === 'webp' && !probe.toDataURL('image/webp').startsWith('data:image/webp')) {
-                $('imgError').textContent = '当前浏览器不支持 WEBP 输出，请选择 PNG 或 JPG';
+
+            // ---------- Base64 编码（无需解码图片） ----------
+            if (fmt === 'base64') {
+                const raw = imgOriginal.dataUrl.split(',')[1] || '';
+                const text = $('imgB64Mode').value === 'dataurl' ? imgOriginal.dataUrl : raw;
+                if (!text) { $('imgError').textContent = '编码失败，请更换图片'; return; }
+                imgClearOutput();
+                $('imgOutText').value = text;
+                $('imgOutText').hidden = false;
+                const bytes = new TextEncoder().encode(text).length;
+                const change = imgOriginal.size > 0 ? ((bytes - imgOriginal.size) / imgOriginal.size * 100) : 0;
+                imgOutput = { kind: 'text', text, name: imgBaseName() + '.txt' };
+                renderKv($('imgStats'), [
+                    ['文件名', imgOriginal.name],
+                    ['原格式 / 大小', (imgOriginal.type.split('/')[1] || '?').toUpperCase() + ' · ' + imgFmtSize(imgOriginal.size)],
+                    ['编码形式', $('imgB64Mode').value === 'dataurl' ? 'Data URL' : '纯 Base64'],
+                    ['Base64 长度', text.length + ' 字符'],
+                    ['大小变化', (change >= 0 ? '+' : '−') + Math.abs(change).toFixed(1) + '%']
+                ]);
+                $('imgError').textContent = '';
+                showSuccess('编码完成', 'Base64 已生成，可复制或保存');
                 return;
             }
+
             const img = new Image();
             img.onload = () => {
                 const w = img.naturalWidth, h = img.naturalHeight;
                 if (!w || !h) { $('imgError').textContent = '图片解析失败'; return; }
+                if (fmt === 'webp') {
+                    const probe = document.createElement('canvas');
+                    probe.width = probe.height = 1;
+                    if (!probe.toDataURL('image/webp').startsWith('data:image/webp')) {
+                        $('imgError').textContent = '当前浏览器不支持 WEBP 输出，请选择 PNG 或 JPG';
+                        return;
+                    }
+                }
                 const canvas = document.createElement('canvas');
                 canvas.width = w;
                 canvas.height = h;
                 const ctx = canvas.getContext('2d');
+
+                // ---------- SVG 矢量化 ----------
+                if (fmt === 'svg') {
+                    const scale = Math.min(1, VEC_MAX_EDGE / Math.max(w, h));
+                    const sw = Math.max(1, Math.round(w * scale));
+                    const sh = Math.max(1, Math.round(h * scale));
+                    canvas.width = sw;
+                    canvas.height = sh;
+                    ctx.clearRect(0, 0, sw, sh);
+                    ctx.drawImage(img, 0, 0, sw, sh);
+                    let res;
+                    try {
+                        res = vecVectorize(ctx.getImageData(0, 0, sw, sh).data, sw, sh);
+                    } catch (err) {
+                        $('imgError').textContent = '矢量化失败：' + err.message;
+                        return;
+                    }
+                    imgClearOutput();
+                    const blob = new Blob([res.svg], { type: 'image/svg+xml' });
+                    imgOutput = {
+                        kind: 'svg',
+                        url: URL.createObjectURL(blob),
+                        text: res.svg,
+                        name: imgBaseName() + '.svg'
+                    };
+                    $('imgOutPreview').src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(res.svg);
+                    $('imgOutText').hidden = true;
+                    const change = imgOriginal.size > 0 ? ((blob.size - imgOriginal.size) / imgOriginal.size * 100) : 0;
+                    renderKv($('imgStats'), [
+                        ['文件名', imgOriginal.name],
+                        ['原格式 / 大小', (imgOriginal.type.split('/')[1] || '?').toUpperCase() + ' · ' + imgFmtSize(imgOriginal.size)],
+                        ['颜色数', String(res.colors)],
+                        ['路径数', String(res.paths)],
+                        ['SVG 大小', imgFmtSize(blob.size)],
+                        ['体积变化', (change >= 0 ? '+' : '−') + Math.abs(change).toFixed(1) + '%'],
+                        ['矢量分辨率', sw + ' × ' + sh + ' px']
+                    ]);
+                    $('imgError').textContent = '';
+                    showSuccess('矢量化完成',
+                        res.capped ? '图像较复杂，路径数已达上限，SVG 可能不完整' : 'SVG 已生成，可保存后用浏览器打开');
+                    return;
+                }
+
+                // ---------- 位图格式转换 ----------
                 if (fmt === 'jpeg') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h); }
                 ctx.drawImage(img, 0, 0);
                 const mime = fmt === 'png' ? 'image/png' : fmt === 'jpeg' ? 'image/jpeg' : 'image/webp';
                 const quality = fmt === 'png' ? undefined : parseInt($('imgQuality').value, 10) / 100;
                 canvas.toBlob((blob) => {
                     if (!blob) { $('imgError').textContent = '转换失败，请更换目标格式'; return; }
-                    if (imgOutput) URL.revokeObjectURL(imgOutput.url);
+                    imgClearOutput();
                     imgOutput = {
+                        kind: 'image',
                         url: URL.createObjectURL(blob),
                         size: blob.size,
                         ext: fmt === 'jpeg' ? 'jpg' : fmt,
-                        name: (imgOriginal.name.replace(/\.[^.]+$/, '') || 'image') + '.' + (fmt === 'jpeg' ? 'jpg' : fmt)
+                        name: imgBaseName() + '.' + (fmt === 'jpeg' ? 'jpg' : fmt)
                     };
                     $('imgOutPreview').src = imgOutput.url;
+                    $('imgOutText').hidden = true;
                     const change = imgOriginal.size > 0
                         ? ((blob.size - imgOriginal.size) / imgOriginal.size * 100)
                         : 0;
@@ -1295,16 +1591,42 @@
             img.src = imgOriginal.dataUrl;
         });
 
+        $('btnImgCopy').addEventListener('click', () => {
+            const text = $('imgOutText').value;
+            if (!text) { $('imgError').textContent = '请先执行转换'; return; }
+            const done = () => showSuccess('已复制', '文本已复制到剪贴板');
+            const fallback = () => {
+                try {
+                    $('imgOutText').hidden = false;
+                    $('imgOutText').select();
+                    if (document.execCommand && document.execCommand('copy')) done();
+                    else $('imgError').textContent = '复制失败，请手动选择文本复制';
+                } catch (e) {
+                    $('imgError').textContent = '复制失败，请手动选择文本复制';
+                }
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done, fallback);
+            } else {
+                fallback();
+            }
+        });
+
         $('btnImgSave').addEventListener('click', () => {
             if (!imgOutput) { $('imgError').textContent = '请先执行转换'; return; }
             try {
+                let url = imgOutput.url, name = imgOutput.name;
+                if (!url && imgOutput.kind !== 'image') {
+                    url = URL.createObjectURL(new Blob([imgOutput.text],
+                        { type: imgOutput.kind === 'svg' ? 'image/svg+xml' : 'text/plain' }));
+                }
                 const a = document.createElement('a');
-                a.download = imgOutput.name;
-                a.href = imgOutput.url;
+                a.download = name;
+                a.href = url;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                showSuccess('已保存', imgOutput.name + ' 已下载');
+                showSuccess('已保存', name + ' 已下载');
             } catch (e) {
                 $('imgError').textContent = '保存失败：' + e.message;
             }
