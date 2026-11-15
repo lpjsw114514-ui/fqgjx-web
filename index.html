@@ -228,6 +228,49 @@
                     <div class="section-label">文本统计</div>
                     <div class="kv-list" id="textStats"></div>
                     <div class="tool-error" id="textError"></div>
+
+                    <div class="section-label">🖼️ 图片转换</div>
+                    <p class="hint">在本机完成 PNG / JPG / WEBP 格式互转，可调整压缩质量，图片不会上传。</p>
+
+                    <input type="file" id="imgFile" accept="image/*" hidden>
+                    <div class="field-row">
+                        <button class="tool-btn" id="btnImgPick">选择图片</button>
+                        <span class="hint" id="imgInfo">未选择图片</span>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field-col">
+                            <label class="field-label">目标格式</label>
+                            <select id="imgFormat" class="tool-select">
+                                <option value="png">PNG（无损）</option>
+                                <option value="jpeg" selected>JPG（有损压缩）</option>
+                                <option value="webp">WEBP</option>
+                            </select>
+                        </div>
+                        <div class="field-col">
+                            <label class="field-label">质量 <span id="imgQualityVal">85</span>%</label>
+                            <input type="range" id="imgQuality" class="tool-range" min="10" max="100" value="85">
+                        </div>
+                    </div>
+
+                    <button class="tool-btn primary" id="btnImgConvert">开始转换</button>
+
+                    <div class="img-compare">
+                        <div class="img-box">
+                            <div class="field-label">原图</div>
+                            <img id="imgSrcPreview" alt="原图预览">
+                        </div>
+                        <div class="img-box">
+                            <div class="field-label">转换后</div>
+                            <img id="imgOutPreview" alt="转换后预览">
+                        </div>
+                    </div>
+
+                    <div class="kv-list" id="imgStats"></div>
+                    <div class="field-row">
+                        <button class="tool-btn ghost" id="btnImgSave">💾 保存图片</button>
+                    </div>
+                    <div class="tool-error" id="imgError"></div>
                 </div>
             </div>
         </div>
@@ -325,14 +368,22 @@
                                 <option value="speed">速度</option>
                                 <option value="time">时间</option>
                                 <option value="data">数据存储</option>
+                                <option value="timezone">时区</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="field-row">
+                    <div class="field-row" id="unitValueRow">
                         <div class="field-col">
                             <label class="field-label">数值</label>
                             <input type="text" id="unitValue" class="tool-input" value="1" inputmode="decimal" autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+
+                    <div class="field-row" id="unitTimeRow" hidden>
+                        <div class="field-col">
+                            <label class="field-label">日期时间（按「从」时区的当地时间）</label>
+                            <input type="datetime-local" id="unitTime" class="tool-input">
                         </div>
                     </div>
 
@@ -352,10 +403,14 @@
                     </div>
 
                     <label class="field-label">转换结果</label>
-                    <div class="kv-list">
+                    <div class="kv-list" id="unitKvList">
                         <div class="kv-row">
                             <span class="k" id="unitResultLabel">1 米</span>
                             <span class="v" id="unitResult">—</span>
+                        </div>
+                        <div class="kv-row" id="unitDiffRow" hidden>
+                            <span class="k">时差</span>
+                            <span class="v" id="unitDiff">—</span>
                         </div>
                     </div>
                     <div class="tool-error" id="unitError"></div>

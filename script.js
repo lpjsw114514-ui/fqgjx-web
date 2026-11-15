@@ -1003,6 +1003,26 @@
                 { name: 'GB', factor: 1073741824 },
                 { name: 'TB', factor: 1099511627776 }
             ]
+        },
+        timezone: {
+            name: '时区',
+            zones: [
+                { name: 'UTC（协调世界时）', zone: 'UTC' },
+                { name: '北京时间', zone: 'Asia/Shanghai' },
+                { name: '东京时间', zone: 'Asia/Tokyo' },
+                { name: '首尔时间', zone: 'Asia/Seoul' },
+                { name: '新加坡时间', zone: 'Asia/Singapore' },
+                { name: '曼谷时间', zone: 'Asia/Bangkok' },
+                { name: '迪拜时间', zone: 'Asia/Dubai' },
+                { name: '莫斯科时间', zone: 'Europe/Moscow' },
+                { name: '伦敦时间', zone: 'Europe/London' },
+                { name: '巴黎时间', zone: 'Europe/Paris' },
+                { name: '柏林时间', zone: 'Europe/Berlin' },
+                { name: '纽约时间', zone: 'America/New_York' },
+                { name: '芝加哥时间', zone: 'America/Chicago' },
+                { name: '洛杉矶时间', zone: 'America/Los_Angeles' },
+                { name: '悉尼时间', zone: 'Australia/Sydney' }
+            ]
         }
     };
 
@@ -1025,9 +1045,70 @@
         return value * cat.units[fromIdx].factor / cat.units[toIdx].factor;
     }
 
+    // ---------- 时区换算 ----------
+    const WEEKDAY_CN = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+    function tzPad2(n) { return n < 10 ? '0' + n : String(n); }
+
+    function tzParts(date, zone) {
+        const dtf = new Intl.DateTimeFormat('en-US', {
+            timeZone: zone, hour12: false,
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', weekday: 'short'
+        });
+        const parts = {};
+        for (const p of dtf.formatToParts(date)) parts[p.type] = p.value;
+        const hour = parts.hour === '24' ? 0 : parseInt(parts.hour, 10);
+        return {
+            year: parseInt(parts.year, 10), month: parseInt(parts.month, 10), day: parseInt(parts.day, 10),
+            hour: hour, minute: parseInt(parts.minute, 10), second: parseInt(parts.second, 10),
+            weekday: parts.weekday
+        };
+    }
+
+    /** 指定时区在某一瞬间的 UTC 偏移（分钟）。 */
+    function tzOffsetMinutes(date, zone) {
+        const p = tzParts(date, zone);
+        const asUTC = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+        return Math.round((asUTC - Math.floor(date.getTime() / 1000) * 1000) / 60000);
+    }
+
+    /** 把「fromZone 当地时间」的日期时间字符串转换为 toZone 的当地时间。 */
+    function tzConvert(dtLocal, fromZone, toZone) {
+        const m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?$/.exec(String(dtLocal).trim());
+        if (!m) throw new Error('日期时间格式不正确');
+        const y = +m[1], mo = +m[2], d = +m[3], h = +m[4], mi = +m[5], s = +(m[6] || 0);
+        // 先当作 UTC 求时间戳，再用 from 时区偏移回退；偏移可能因夏令时切换而变化，按新偏移重算一次
+        let ts = Date.UTC(y, mo - 1, d, h, mi, s);
+        let off = tzOffsetMinutes(new Date(ts), fromZone);
+        ts -= off * 60000;
+        const off2 = tzOffsetMinutes(new Date(ts), fromZone);
+        if (off2 !== off) ts += (off2 - off) * 60000;
+        const instant = new Date(ts);
+        const from = tzParts(instant, fromZone);
+        const to = tzParts(instant, toZone);
+        const fmt = p => `${p.year}-${tzPad2(p.month)}-${tzPad2(p.day)} ${tzPad2(p.hour)}:${tzPad2(p.minute)}`;
+        const diff = tzOffsetMinutes(instant, toZone) - tzOffsetMinutes(instant, fromZone);
+        const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+        const absH = Math.abs(diff) / 60;
+        const diffText = diff === 0 ? '同一时区'
+            : `${sign}${Number.isInteger(absH) ? absH : absH.toFixed(1)} 小时`;
+        return {
+            fromText: `${fmt(from)} ${WEEKDAY_CN[['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(from.weekday)] || ''}`,
+            toText: `${fmt(to)} ${WEEKDAY_CN[['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(to.weekday)] || ''}`,
+            diffText: diffText
+        };
+    }
+
+    /** 当前本地时间的 datetime-local 值。 */
+    function nowLocalValue() {
+        const n = new Date();
+        return `${n.getFullYear()}-${tzPad2(n.getMonth() + 1)}-${tzPad2(n.getDate())}T${tzPad2(n.getHours())}:${tzPad2(n.getMinutes())}`;
+    }
+
     function unitFillSelects() {
         const cat = $('unitCategory').value;
-        const units = UNIT_CATEGORIES[cat].units;
+        const units = cat === 'timezone' ? UNIT_CATEGORIES.timezone.zones : UNIT_CATEGORIES[cat].units;
         const from = $('unitFrom');
         const to = $('unitTo');
         const keepFrom = from.value;
@@ -1044,17 +1125,47 @@
             o2.textContent = u.name;
             to.appendChild(o2);
         });
-        const defFrom = units.length > 3 ? 2 : 0;
-        const defTo = units.length > 3 ? 3 : (units.length === 3 ? 1 : units.length - 1);
+        let defFrom, defTo;
+        if (cat === 'timezone') { defFrom = 1; defTo = 11; } // 北京 → 纽约
+        else {
+            defFrom = units.length > 3 ? 2 : 0;
+            defTo = units.length > 3 ? 3 : (units.length === 3 ? 1 : units.length - 1);
+        }
         from.value = units[parseInt(keepFrom, 10)] ? keepFrom : String(defFrom);
         to.value = units[parseInt(keepTo, 10)] ? keepTo : String(defTo);
+        // 时区类别切换输入方式
+        $('unitValueRow').hidden = cat === 'timezone';
+        $('unitTimeRow').hidden = cat !== 'timezone';
+        if (cat === 'timezone' && !$('unitTime').value) $('unitTime').value = nowLocalValue();
     }
 
     function unitDoConvert() {
         const cat = $('unitCategory').value;
-        const raw = $('unitValue').value.trim();
         const fromIdx = parseInt($('unitFrom').value, 10);
         const toIdx = parseInt($('unitTo').value, 10);
+        if (cat === 'timezone') {
+            const raw = $('unitTime').value.trim();
+            const zones = UNIT_CATEGORIES.timezone.zones;
+            if (!raw) {
+                $('unitError').textContent = '请选择日期时间';
+                $('unitResult').textContent = '—';
+                $('unitResultLabel').textContent = '—';
+                $('unitDiffRow').hidden = true;
+                return;
+            }
+            try {
+                const r = tzConvert(raw, zones[fromIdx].zone, zones[toIdx].zone);
+                $('unitResultLabel').textContent = r.fromText + '（' + zones[fromIdx].name + '）';
+                $('unitResult').textContent = r.toText + '（' + zones[toIdx].name + '）';
+                $('unitDiff').textContent = r.diffText;
+                $('unitDiffRow').hidden = false;
+                $('unitError').textContent = '';
+            } catch (e) {
+                $('unitError').textContent = '转换失败：' + e.message;
+            }
+            return;
+        }
+        const raw = $('unitValue').value.trim();
         const units = UNIT_CATEGORIES[cat].units;
         if (!raw) { $('unitError').textContent = '请输入要转换的数值'; $('unitResult').textContent = '—'; return; }
         const value = Number(raw);
@@ -1080,6 +1191,8 @@
         $('unitFrom').addEventListener('change', unitDoConvert);
         $('unitTo').addEventListener('change', unitDoConvert);
         $('unitValue').addEventListener('input', unitDoConvert);
+        $('unitTime').addEventListener('input', unitDoConvert);
+        $('unitTime').addEventListener('change', unitDoConvert);
         $('btnUnitSwap').addEventListener('click', () => {
             const f = $('unitFrom').value;
             $('unitFrom').value = $('unitTo').value;
@@ -1090,10 +1203,119 @@
         calcRefresh();
     }
 
+    // ============================================================
+    // 模块 3 附：图片转换（本机 canvas 完成，不上传）
+    // ============================================================
+    let imgOriginal = null;
+    let imgOutput = null;
+
+    function imgFmtSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+    }
+
+    function initImg() {
+        $('btnImgPick').addEventListener('click', () => $('imgFile').click());
+        $('imgFile').addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            if (!/^image\//.test(file.type)) {
+                $('imgError').textContent = '请选择图片文件';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                imgOriginal = { name: file.name, type: file.type, size: file.size, dataUrl: reader.result };
+                $('imgSrcPreview').src = reader.result;
+                $('imgOutPreview').removeAttribute('src');
+                imgOutput = null;
+                $('imgInfo').textContent = file.name + ' · ' + imgFmtSize(file.size);
+                renderKv($('imgStats'), [
+                    ['文件名', file.name],
+                    ['原格式', (file.type.split('/')[1] || '?').toUpperCase()],
+                    ['原大小', imgFmtSize(file.size)]
+                ]);
+                $('imgError').textContent = '';
+            };
+            reader.onerror = () => { $('imgError').textContent = '图片读取失败'; };
+            reader.readAsDataURL(file);
+        });
+
+        $('imgQuality').addEventListener('input', () => {
+            $('imgQualityVal').textContent = $('imgQuality').value;
+        });
+
+        $('btnImgConvert').addEventListener('click', () => {
+            if (!imgOriginal) { $('imgError').textContent = '请先选择图片'; return; }
+            const fmt = $('imgFormat').value;
+            const probe = document.createElement('canvas');
+            probe.width = probe.height = 1;
+            if (fmt === 'webp' && !probe.toDataURL('image/webp').startsWith('data:image/webp')) {
+                $('imgError').textContent = '当前浏览器不支持 WEBP 输出，请选择 PNG 或 JPG';
+                return;
+            }
+            const img = new Image();
+            img.onload = () => {
+                const w = img.naturalWidth, h = img.naturalHeight;
+                if (!w || !h) { $('imgError').textContent = '图片解析失败'; return; }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                if (fmt === 'jpeg') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h); }
+                ctx.drawImage(img, 0, 0);
+                const mime = fmt === 'png' ? 'image/png' : fmt === 'jpeg' ? 'image/jpeg' : 'image/webp';
+                const quality = fmt === 'png' ? undefined : parseInt($('imgQuality').value, 10) / 100;
+                canvas.toBlob((blob) => {
+                    if (!blob) { $('imgError').textContent = '转换失败，请更换目标格式'; return; }
+                    if (imgOutput) URL.revokeObjectURL(imgOutput.url);
+                    imgOutput = {
+                        url: URL.createObjectURL(blob),
+                        size: blob.size,
+                        ext: fmt === 'jpeg' ? 'jpg' : fmt,
+                        name: (imgOriginal.name.replace(/\.[^.]+$/, '') || 'image') + '.' + (fmt === 'jpeg' ? 'jpg' : fmt)
+                    };
+                    $('imgOutPreview').src = imgOutput.url;
+                    const change = imgOriginal.size > 0
+                        ? ((blob.size - imgOriginal.size) / imgOriginal.size * 100)
+                        : 0;
+                    renderKv($('imgStats'), [
+                        ['文件名', imgOriginal.name],
+                        ['原格式 / 大小', (imgOriginal.type.split('/')[1] || '?').toUpperCase() + ' · ' + imgFmtSize(imgOriginal.size)],
+                        ['新格式 / 大小', (fmt === 'jpeg' ? 'JPG' : fmt.toUpperCase()) + ' · ' + imgFmtSize(blob.size)],
+                        ['分辨率', w + ' × ' + h + ' px'],
+                        ['体积变化', (change >= 0 ? '+' : '−') + Math.abs(change).toFixed(1) + '%']
+                    ]);
+                    $('imgError').textContent = '';
+                    showSuccess('转换完成', '可点击「保存图片」下载');
+                }, mime, quality);
+            };
+            img.onerror = () => { $('imgError').textContent = '图片加载失败'; };
+            img.src = imgOriginal.dataUrl;
+        });
+
+        $('btnImgSave').addEventListener('click', () => {
+            if (!imgOutput) { $('imgError').textContent = '请先执行转换'; return; }
+            try {
+                const a = document.createElement('a');
+                a.download = imgOutput.name;
+                a.href = imgOutput.url;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showSuccess('已保存', imgOutput.name + ' 已下载');
+            } catch (e) {
+                $('imgError').textContent = '保存失败：' + e.message;
+            }
+        });
+    }
+
     // ==================== 初始化 ====================
     initPomodoro();
     initBase();
     initText();
+    initImg();
     initQr();
     initCalc();
 })();
