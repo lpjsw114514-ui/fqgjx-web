@@ -902,3 +902,13 @@ input.tool-input, textarea.tool-input { min-width: 0; }
 @media (max-width: 360px) {
     .img-compare { grid-template-columns: 1fr; }
 }
+
+/* Base64 / SVG 输出区 */
+.img-box textarea {
+    width: 100%;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    word-break: break-all;
+}
