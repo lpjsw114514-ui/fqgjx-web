@@ -2,447 +2,554 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>🍅 番茄工具箱 · 番茄钟 / 进制 / 文本 / 二维码 / 计算器</title>
-    <link rel="icon" type="image/png" href="data:image/png;base64,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">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>L-Mini Tools · 导航页</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="app-container">
-    <div class="card" id="appCard">
+    <div class="container" id="top">
+        <header class="header">
+            <h1>L-Mini Tools</h1>
+            <p>小巧实用的工具与娱乐导航</p>
+        </header>
 
-        <!-- 顶层模块导航 -->
-        <div class="module-nav" id="moduleNav">
-            <button class="module-btn active" data-module="pomodoro">🍅 番茄钟</button>
-            <button class="module-btn" data-module="base">🔢 进制</button>
-            <button class="module-btn" data-module="text">📝 文本</button>
-            <button class="module-btn" data-module="qr">🔳 二维码</button>
-            <button class="module-btn" data-module="calc">🧮 计算器</button>
-        </div>
-
-        <!-- ============ 模块 1：番茄钟 ============ -->
-        <div class="module-view active" id="modulePomodoro">
-            <div class="main-view active" id="mainView">
-                <div class="top-nav">
-                    <div class="nav-title">🍅 番茄工具箱</div>
-                    <div class="nav-buttons">
-                        <button class="nav-btn active" data-view="timer">计时</button>
-                        <button class="nav-btn" data-view="stats">统计</button>
-                        <button class="nav-btn" data-view="settings">设置</button>
+        <!-- 工具类 -->
+        <section class="section">
+            <h2 class="section-title">工具类</h2>
+            <div class="tools-grid">
+                <!-- 番茄钟 -->
+                <div class="tool-card" id="tomato-card" role="button" tabindex="0">
+                    <img src="A1.png" alt="番茄钟" class="tool-image">
+                    <div class="tool-info">
+                        <h3>番茄钟</h3>
+                        <p class="tool-desc">简洁优雅的专注计时器</p>
                     </div>
                 </div>
 
-                <!-- 计时子视图 -->
-                <div id="timerSubview">
-                    <div class="header">
-                        <div class="title">
-                            <span>🍅</span>
-                            <span>专注时钟</span>
-                            <span class="nickname-badge" id="homeNickname">👤 专注者</span>
-                            <span class="level-badge" id="levelBadge">⭐ LV0</span>
-                        </div>
-                        <div class="stats">
-                            <div class="tomato-count" id="tomatoCount">
-                                🍅 <span id="countValue">0</span>
-                            </div>
-                            <button class="btn-icon" id="btnSound" title="声音开关">🔊</button>
-                        </div>
-                    </div>
-
-                    <div class="timer-section">
-                        <div class="timer-ring-wrapper">
-                            <svg viewBox="0 0 300 300">
-                                <circle class="ring-bg" cx="150" cy="150" r="125"/>
-                                <circle class="ring-progress" id="ringProgress" cx="150" cy="150" r="125" stroke-dasharray="785.4" stroke-dashoffset="0"/>
-                            </svg>
-                            <div class="timer-display">
-                                <div class="timer-time" id="timerDisplay">25:00</div>
-                                <div class="timer-label" id="timerLabel">剩余时间</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="presets" id="presetContainer">
-                        <button class="preset-btn" data-minutes="1">1分</button>
-                        <button class="preset-btn" data-minutes="5">5分</button>
-                        <button class="preset-btn" data-minutes="10">10分</button>
-                        <button class="preset-btn" data-minutes="20">20分</button>
-                        <button class="preset-btn active" data-minutes="25">25分</button>
-                        <button class="preset-btn" data-minutes="30">30分</button>
-                        <button class="preset-btn" data-minutes="60">1小时</button>
-                        <button class="preset-btn" data-minutes="75">75分</button>
-                        <button class="preset-btn" data-minutes="90">90分</button>
-                    </div>
-
-                    <div class="controls">
-                        <button class="btn-control btn-start" id="btnStart">▶ 开始</button>
-                        <button class="btn-control btn-reset" id="btnReset">↻ 重置</button>
-                        <button class="cycle-toggle" id="cycleToggle" title="自动循环模式">🔁 循环</button>
+                <!-- 番茄工具箱 -->
+                <div class="tool-card" id="fqgjx-card" role="button" tabindex="0">
+                    <div class="tool-image" style="background: linear-gradient(135deg, #ff6b4a, #ff9a7a); display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">🧰</div>
+                    <div class="tool-info">
+                        <h3>番茄工具箱</h3>
+                        <p class="tool-desc">专注时钟 · 进制转换 · 文本图片 · 二维码 · 计算器</p>
                     </div>
                 </div>
 
-                <!-- 统计子视图 -->
-                <div id="statsSubview" style="display:none; flex:1; flex-direction:column;">
-                    <div class="summary-cards">
-                        <div class="summary-card">
-                            <div class="value" id="totalMinutes">0</div>
-                            <div class="label">专注分钟</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="value" id="totalTomatoes">0</div>
-                            <div class="label">获得番茄</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="value" id="levelDisplay">LV0</div>
-                            <div class="label">当前等级</div>
-                        </div>
-                    </div>
-                    <div style="font-weight:600; margin-bottom:8px; color:var(--text-primary);">历史记录</div>
-                    <div class="record-list" id="recordList">
-                        <div class="empty-records">暂无记录，开始第一个番茄吧！</div>
+                <!-- ECG · 心电监护 -->
+                <div class="tool-card" id="ecg-card" role="button" tabindex="0">
+                    <img src="A2.png" alt="ECG · 心电监护" class="tool-image">
+                    <div class="tool-info">
+                        <h3>ECG · 心电监护</h3>
+                        <p class="tool-desc">Web Bluetooth 实时心电波形</p>
                     </div>
                 </div>
 
-                <!-- 设置子视图（数据迁移已移除） -->
-                <div id="settingsSubview" style="display:none; flex:1; flex-direction:column;">
-                    <div class="settings-group">
-                        <label>昵称</label>
-                        <input type="text" id="nicknameInput" class="settings-input" placeholder="输入昵称">
-                        <button class="settings-btn btn-change-nickname" id="btnSaveNickname">保存昵称</button>
-                        <div class="settings-error" id="nicknameError"></div>
-                        <div class="settings-success" id="nicknameSuccess"></div>
+                <!-- WUJING ·無境 -->
+                <div class="tool-card" id="wujing-card" role="button" tabindex="0">
+                    <img src="A5.jpg" alt="WUJING ·無境" class="tool-image">
+                    <div class="tool-info">
+                        <h3>WUJING ·無境</h3>
+                        <p class="tool-desc">综合创作团队 · 极简设计</p>
                     </div>
-
-                    <div class="settings-group">
-                        <label>工作与休息设置（分钟）</label>
-                        <div style="display:flex; gap:10px;">
-                            <div style="flex:1;">
-                                <label style="font-size:12px;">工作</label>
-                                <input type="number" id="workMinutesInput" class="settings-input" min="1" max="180" value="25">
-                            </div>
-                            <div style="flex:1;">
-                                <label style="font-size:12px;">休息</label>
-                                <input type="number" id="restMinutesInput" class="settings-input" min="1" max="60" value="5">
-                            </div>
-                        </div>
-                        <button class="settings-btn" id="btnSaveWorkRest" style="background:var(--tomato); color:#fff;">保存工作/休息设置</button>
-                        <div class="settings-error" id="workRestError"></div>
-                        <div class="settings-success" id="workRestSuccess"></div>
-                    </div>
-
-                    <div class="settings-group">
-                        <label>关于</label>
-                        <p class="hint-text">🍅 番茄钟 · 专注统计<br>本版本已移除「数据迁移（导入/导出数字编码）」功能。<br>数据仅保存在本机浏览器，完全离线可用。</p>
-                    </div>
-                </div>
-
-                <div class="celebration-overlay" id="celebrationOverlay">
-                    <div class="emoji">🎉</div>
-                    <div class="text">时间到！</div>
-                    <div class="sub-text" id="celebrationSubText">干得漂亮，休息一下吧</div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- ============ 模块 2：进制转换 ============ -->
-        <div class="module-view" id="moduleBase">
-            <div class="tool-scroll">
-                <div class="tool-panel">
-                    <div class="tool-title">🔢 进制转换</div>
-                    <p class="hint">支持 2–36 任意进制、超大整数（BigInt）与负数，完全离线计算。</p>
+        <!-- 娱乐类 -->
+        <section class="section">
+            <h2 class="section-title">娱乐类</h2>
+            <div class="entertainment-placeholder">
+                更多有趣内容，敬请期待 …
+            </div>
+        </section>
 
-                    <label class="field-label">输入数值</label>
-                    <input type="text" id="baseInput" class="tool-input" placeholder="例如 1010 / FF / 123456789012345678901234567890" autocomplete="off" spellcheck="false">
-
-                    <div class="field-row">
-                        <div class="field-col">
-                            <label class="field-label">原进制</label>
-                            <select id="baseFrom" class="tool-select"></select>
-                        </div>
-                        <div class="field-col">
-                            <label class="field-label">目标进制</label>
-                            <select id="baseTo" class="tool-select"></select>
-                        </div>
+        <!-- 成员页 -->
+        <section class="section">
+            <h2 class="section-title">成员页</h2>
+            <div class="members-grid">
+                <!-- 成员 1 -->
+                <div class="member-card" data-modal="member-modal-1" role="button" tabindex="0">
+                    <div class="member-header">
+                        <div class="member-name">。</div>
+                        <img src="A3.jpg" alt="成员头像" class="member-avatar">
                     </div>
+                    <span class="member-role">开发者 / 运营</span>
+                    <p class="member-desc">运营不是给。爱用ai的啥b。</p>
+                </div>
 
-                    <div class="field-row">
-                        <button class="tool-btn primary" id="btnBaseConvert">转换</button>
-                        <button class="tool-btn ghost" id="btnBaseSwap">⇄ 交换</button>
+                <!-- 成员 2 -->
+                <div class="member-card" data-modal="member-modal-2" role="button" tabindex="0">
+                    <div class="member-header">
+                        <div class="member-name">青山依旧</div>
+                        <img src="A4.jpg" alt="成员头像" class="member-avatar">
                     </div>
+                    <span class="member-role">视频宣发（抖音）</span>
+                    <p class="member-desc">一名初中生，负责在抖音上发视频</p>
+                </div>
 
-                    <label class="field-label">转换结果</label>
-                    <textarea id="baseResult" class="tool-area" rows="2" readonly placeholder="结果会显示在这里"></textarea>
-                    <button class="tool-btn ghost" id="btnBaseCopy">📋 复制结果</button>
+                <!-- 成员 3：无他 -->
+                <div class="member-card" data-modal="member-modal-3" role="button" tabindex="0">
+                    <div class="member-header">
+                        <div class="member-name">无他</div>
+                        <img src="A6.JPG" alt="成员头像" class="member-avatar">
+                    </div>
+                    <span class="member-role">合作伙伴</span>
+                    <p class="member-desc">高中生一名，国家级帆船运动员，無境团队创始人之一</p>
+                </div>
 
-                    <div class="section-label">常用进制速览</div>
-                    <div class="kv-list" id="baseQuick"></div>
-                    <div class="tool-error" id="baseError"></div>
+                <!-- 成员 4：无 -->
+                <div class="member-card" data-modal="member-modal-4" role="button" tabindex="0">
+                    <div class="member-header">
+                        <div class="member-name">无</div>
+                        <img src="A8.jpg" alt="成员头像" class="member-avatar">
+                    </div>
+                    <span class="member-role">开发者</span>
+                    <p class="member-desc">我是人</p>
+                </div>
+
+                <!-- 成员 5 -->
+                <div class="member-card" data-modal="member-modal-5" role="button" tabindex="0">
+                    <div class="member-header">
+                        <div class="member-name">（待填写）</div>
+                    </div>
+                    <span class="member-role">成员</span>
+                    <p class="member-desc empty">（介绍待填写）</p>
+                </div>
+
+                <!-- 成员 6 -->
+                <div class="member-card" data-modal="member-modal-6" role="button" tabindex="0">
+                    <div class="member-header">
+                        <div class="member-name">（待填写）</div>
+                    </div>
+                    <span class="member-role">成员</span>
+                    <p class="member-desc empty">（介绍待填写）</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- ============ 模块 3：文本处理 ============ -->
-        <div class="module-view" id="moduleText">
-            <div class="tool-scroll">
-                <div class="tool-panel">
-                    <div class="tool-title">📝 文本处理</div>
-                    <p class="hint">所有处理均在本机完成，不上传任何内容。</p>
-
-                    <label class="field-label">输入文本</label>
-                    <textarea id="textInput" class="tool-area" rows="6" placeholder="粘贴或输入要处理的文本…"></textarea>
-
-                    <div class="btn-grid" id="textActions">
-                        <button class="tool-btn" data-text="upper">转大写</button>
-                        <button class="tool-btn" data-text="lower">转小写</button>
-                        <button class="tool-btn" data-text="trim">去首尾空格</button>
-                        <button class="tool-btn" data-text="nospace">删除所有空白</button>
-                        <button class="tool-btn" data-text="noblank">删除空行</button>
-                        <button class="tool-btn" data-text="unique">行去重</button>
-                        <button class="tool-btn" data-text="sort">行排序</button>
-                        <button class="tool-btn" data-text="reverseLines">行倒序</button>
-                        <button class="tool-btn" data-text="reverseChars">反转字符</button>
-                        <button class="tool-btn" data-text="stripTags">去 HTML 标签</button>
-                        <button class="tool-btn" data-text="b64enc">Base64 编码</button>
-                        <button class="tool-btn" data-text="b64dec">Base64 解码</button>
-                        <button class="tool-btn" data-text="urlenc">URL 编码</button>
-                        <button class="tool-btn" data-text="urldec">URL 解码</button>
-                        <button class="tool-btn" data-text="sha256">SHA-256</button>
-                        <button class="tool-btn" data-text="clear">清空</button>
-                    </div>
-
-                    <div class="field-row">
-                        <input type="text" id="findInput" class="tool-input" placeholder="查找">
-                        <input type="text" id="replaceInput" class="tool-input" placeholder="替换为">
-                    </div>
-                    <button class="tool-btn primary" id="btnReplace">查找替换</button>
-
-                    <label class="field-label">输出结果</label>
-                    <textarea id="textOutput" class="tool-area" rows="5" readonly placeholder="处理结果会显示在这里"></textarea>
-                    <div class="field-row">
-                        <button class="tool-btn ghost" id="btnTextCopy">📋 复制结果</button>
-                        <button class="tool-btn ghost" id="btnTextSwap">↑ 结果填回输入</button>
-                    </div>
-
-                    <div class="section-label">文本统计</div>
-                    <div class="kv-list" id="textStats"></div>
-                    <div class="tool-error" id="textError"></div>
-
-                    <div class="section-label">🖼️ 图片转换</div>
-                    <p class="hint">在本机完成 PNG / JPG / WEBP 格式互转、Base64 编码与 SVG 矢量化，可调整压缩质量，图片不会上传。</p>
-
-                    <input type="file" id="imgFile" accept="image/*" hidden>
-                    <div class="field-row">
-                        <button class="tool-btn" id="btnImgPick">选择图片</button>
-                        <span class="hint" id="imgInfo">未选择图片</span>
-                    </div>
-
-                    <div class="field-row">
-                        <div class="field-col">
-                            <label class="field-label">目标格式</label>
-                            <select id="imgFormat" class="tool-select">
-                                <option value="png">PNG（无损）</option>
-                                <option value="jpeg" selected>JPG（有损压缩）</option>
-                                <option value="webp">WEBP</option>
-                                <option value="base64">Base64 编码</option>
-                                <option value="svg">SVG 矢量图</option>
-                            </select>
-                        </div>
-                        <div class="field-col">
-                            <label class="field-label">质量 <span id="imgQualityVal">85</span>%</label>
-                            <input type="range" id="imgQuality" class="tool-range" min="10" max="100" value="85">
-                        </div>
-                    </div>
-
-                    <div class="field-row" id="imgB64Row" hidden>
-                        <div class="field-col">
-                            <label class="field-label">编码形式</label>
-                            <select id="imgB64Mode" class="tool-select">
-                                <option value="raw">纯 Base64</option>
-                                <option value="dataurl">Data URL（含前缀）</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button class="tool-btn primary" id="btnImgConvert">开始转换</button>
-
-                    <div class="img-compare">
-                        <div class="img-box">
-                            <div class="field-label">原图</div>
-                            <img id="imgSrcPreview" alt="原图预览">
-                        </div>
-                        <div class="img-box">
-                            <div class="field-label">转换后</div>
-                            <img id="imgOutPreview" alt="转换后预览">
-                            <textarea id="imgOutText" class="tool-area" rows="4" readonly hidden></textarea>
-                        </div>
-                    </div>
-
-                    <div class="kv-list" id="imgStats"></div>
-                    <div class="field-row">
-                        <button class="tool-btn ghost" id="btnImgSave">💾 保存图片</button>
-                        <button class="tool-btn ghost" id="btnImgCopy" hidden>📋 复制文本</button>
-                    </div>
-                    <div class="tool-error" id="imgError"></div>
+        <!-- 底部联系方式 -->
+        <section class="section">
+            <div class="footer-info">
+                <div class="copy-item" data-copy="1125056057" role="button" tabindex="0">
+                    <span class="label">QQ交流群：</span>
+                    <span class="value">1125056057</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="https://github.com/lpjsw114514-ui/" role="button" tabindex="0">
+                    <span class="label">GitHub源码：</span>
+                    <span class="value">lpjsw114514-ui</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="kskbl114514@hotmail.com" role="button" tabindex="0">
+                    <span class="label">开发者邮箱：</span>
+                    <span class="value">kskbl114514@hotmail.com</span>
+                    <span class="copy-badge">点击复制</span>
                 </div>
             </div>
-        </div>
-
-        <!-- ============ 模块 4：二维码生成 ============ -->
-        <div class="module-view" id="moduleQr">
-            <div class="tool-scroll">
-                <div class="tool-panel">
-                    <div class="tool-title">🔳 二维码生成</div>
-                    <p class="hint">编码算法已内置在本页，完全离线生成，支持中文，不调用任何在线接口。</p>
-
-                    <label class="field-label">要编码的内容</label>
-                    <textarea id="qrInput" class="tool-area" rows="3" placeholder="输入文字、网址或任意文本…"></textarea>
-
-                    <div class="field-row">
-                        <div class="field-col">
-                            <label class="field-label">容错级别</label>
-                            <select id="qrEcc" class="tool-select">
-                                <option value="L">L · 约 7%</option>
-                                <option value="M" selected>M · 约 15%</option>
-                                <option value="Q">Q · 约 25%</option>
-                                <option value="H">H · 约 30%</option>
-                            </select>
-                        </div>
-                        <div class="field-col">
-                            <label class="field-label">模块大小</label>
-                            <select id="qrScale" class="tool-select">
-                                <option value="4">4 px</option>
-                                <option value="6" selected>6 px</option>
-                                <option value="8">8 px</option>
-                                <option value="10">10 px</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="field-row">
-                        <button class="tool-btn primary" id="btnQrGen">生成二维码</button>
-                        <button class="tool-btn ghost" id="btnQrSave">💾 保存 PNG</button>
-                    </div>
-
-                    <div class="qr-wrap"><canvas id="qrCanvas" width="290" height="290"></canvas></div>
-                    <div class="hint" id="qrInfo">尚未生成</div>
-                    <div class="tool-error" id="qrError"></div>
-                </div>
+            <!-- 版权声明 -->
+            <div class="copyright-notice">
+                如存在版权问题请联系"kskbl114514@hotmail.com"。
             </div>
-        </div>
-
-        <!-- ============ 模块 5：计算器 / 单位转换 ============ -->
-        <div class="module-view" id="moduleCalc">
-            <div class="tool-scroll">
-                <div class="tool-panel">
-                    <div class="tool-title">🧮 计算器</div>
-                    <p class="hint">支持 + − × ÷、括号与百分比，下方附常用单位转换，全部离线计算。</p>
-
-                    <div class="calc-display">
-                        <div class="calc-expr" id="calcExpr">0</div>
-                        <div class="calc-result" id="calcResult"></div>
-                    </div>
-
-                    <div class="calc-keys" id="calcKeys">
-                        <button class="calc-key fn" data-key="C">C</button>
-                        <button class="calc-key fn" data-key="back">⌫</button>
-                        <button class="calc-key fn" data-key="(">(</button>
-                        <button class="calc-key fn" data-key=")">)</button>
-                        <button class="calc-key" data-key="7">7</button>
-                        <button class="calc-key" data-key="8">8</button>
-                        <button class="calc-key" data-key="9">9</button>
-                        <button class="calc-key op" data-key="/">÷</button>
-                        <button class="calc-key" data-key="4">4</button>
-                        <button class="calc-key" data-key="5">5</button>
-                        <button class="calc-key" data-key="6">6</button>
-                        <button class="calc-key op" data-key="*">×</button>
-                        <button class="calc-key" data-key="1">1</button>
-                        <button class="calc-key" data-key="2">2</button>
-                        <button class="calc-key" data-key="3">3</button>
-                        <button class="calc-key op" data-key="-">−</button>
-                        <button class="calc-key" data-key="0">0</button>
-                        <button class="calc-key" data-key=".">.</button>
-                        <button class="calc-key" data-key="%">%</button>
-                        <button class="calc-key op" data-key="+">+</button>
-                        <button class="calc-key eq" data-key="=">=</button>
-                    </div>
-
-                    <div class="section-label">📐 单位转换</div>
-
-                    <div class="field-row">
-                        <div class="field-col">
-                            <label class="field-label">类别</label>
-                            <select id="unitCategory" class="tool-select">
-                                <option value="length">长度</option>
-                                <option value="weight">重量</option>
-                                <option value="area">面积</option>
-                                <option value="volume">体积</option>
-                                <option value="temperature">温度</option>
-                                <option value="speed">速度</option>
-                                <option value="time">时间</option>
-                                <option value="data">数据存储</option>
-                                <option value="timezone">时区</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="field-row" id="unitValueRow">
-                        <div class="field-col">
-                            <label class="field-label">数值</label>
-                            <input type="text" id="unitValue" class="tool-input" value="1" inputmode="decimal" autocomplete="off" spellcheck="false">
-                        </div>
-                    </div>
-
-                    <div class="field-row" id="unitTimeRow" hidden>
-                        <div class="field-col">
-                            <label class="field-label">日期时间（按「从」时区的当地时间）</label>
-                            <input type="datetime-local" id="unitTime" class="tool-input">
-                        </div>
-                    </div>
-
-                    <div class="field-row">
-                        <div class="field-col">
-                            <label class="field-label">从</label>
-                            <select id="unitFrom" class="tool-select"></select>
-                        </div>
-                        <div class="field-col">
-                            <label class="field-label">到</label>
-                            <select id="unitTo" class="tool-select"></select>
-                        </div>
-                    </div>
-
-                    <div class="field-row">
-                        <button class="tool-btn ghost" id="btnUnitSwap">⇄ 交换单位</button>
-                    </div>
-
-                    <label class="field-label">转换结果</label>
-                    <div class="kv-list" id="unitKvList">
-                        <div class="kv-row">
-                            <span class="k" id="unitResultLabel">1 米</span>
-                            <span class="v" id="unitResult">—</span>
-                        </div>
-                        <div class="kv-row" id="unitDiffRow" hidden>
-                            <span class="k">时差</span>
-                            <span class="v" id="unitDiff">—</span>
-                        </div>
-                    </div>
-                    <div class="tool-error" id="unitError"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 全局成功弹窗 -->
-        <div class="success-overlay" id="successOverlay">
-            <div class="emoji">🥳</div>
-            <div class="text">操作成功</div>
-            <div class="sub-text" id="successMessage">耶耶耶太好了</div>
-            <button class="btn-close-success" id="btnCloseSuccess" type="button">太棒了</button>
-        </div>
-
+        </section>
     </div>
-</div>
 
-<script src="script.js" defer></script>
+    <div class="toast" id="toast">已复制到剪贴板</div>
+
+    <!-- ================= 弹窗区域 ================= -->
+    <!-- 番茄钟 Modal -->
+    <div class="modal-overlay" id="tomato-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-close="tomato-modal" aria-label="关闭">✕</button>
+            <h2 class="modal-title">番茄钟</h2>
+            <p class="modal-dev"><span>开发者：</span> <span>。</span></p>
+            <div class="modal-section">
+                <h3>软件简介</h3>
+                <p>一款简洁高效的番茄工作法计时器。帮助你合理规划时间，提升专注力。</p>
+            </div>
+            <div class="modal-section">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>标准番茄工作法（25分钟专注 + 5分钟休息）</li>
+                    <li>支持自定义专注时长和休息时长</li>
+                    <li>清晰简洁的视觉界面</li>
+                    <li>专注结束提示音</li>
+                    <li>今日专注数据统计</li>
+                </ul>
+            </div>
+            <div class="modal-section">
+                <h3>使用</h3>
+                <p>点击下方按钮进入应用，设置专注时长后点击开始即可。</p>
+            </div>
+            <div class="modal-actions">
+                <a href="https://fqz1.pages.dev" target="_blank" rel="noopener" class="modal-btn">前往使用 →</a>
+            </div>
+            <!-- 下载区域 -->
+            <div class="download-section">
+                <button class="modal-btn download-toggle" id="toggle-download">立刻下载</button>
+                <div class="download-options" id="download-options">
+                    <div class="os-section">
+                        <h4>安卓</h4>
+                        <div class="cloud-grid">
+                            <a href="https://1822156587.share.123pan.cn/123pan/wkOBjv-PdDXA?pwd=fqz1#" target="_blank" rel="noopener" class="cloud-btn">123云盘</a>
+                            <button class="cloud-btn" data-action="not-supported">阿里云盘</button>
+                            <div class="cloud-item">
+                                <a href="https://yun.139.com/shareweb/#/w/i/2yA8EkfB4Cmbx" target="_blank" rel="noopener" class="cloud-btn" style="width:100%;">中国移动云盘</a>
+                                <img src="A7.png" alt="A7" class="cloud-img">
+                            </div>
+                            <a href="https://pan.baidu.com/s/1GouHjCwvoEFtnqlGlZJLvA?pwd=fqz1" target="_blank" rel="noopener" class="cloud-btn">百度网盘</a>
+                            <a href="https://pan.quark.cn/s/fb99587f6f63" target="_blank" rel="noopener" class="cloud-btn">夸克</a>
+                            <a href="https://pan.xunlei.com/s/VP4lfvp3oJNURbt3XjygoqGTA1?pwd=xefj" target="_blank" rel="noopener" class="cloud-btn">迅雷</a>
+                        </div>
+                    </div>
+                    <div class="os-section">
+                        <h4>Windows</h4>
+                        <div class="cloud-grid">
+                            <a href="https://1822156587.share.123pan.cn/123pan/wkOBjv-zx9nA?pwd=fqz2#" target="_blank" rel="noopener" class="cloud-btn">123云盘</a>
+                            <a href="https://www.alipan.com/s/MP5ayvgGSKG" target="_blank" rel="noopener" class="cloud-btn">阿里云盘</a>
+                            <div class="cloud-item">
+                                <a href="https://yun.139.com/shareweb/#/w/i/2yA8F3iKcxkae" target="_blank" rel="noopener" class="cloud-btn" style="width:100%;">中国移动云盘</a>
+                                <img src="A6.png" alt="A6" class="cloud-img">
+                            </div>
+                            <a href="https://pan.baidu.com/s/1N7icfSZvPYaZMVBtjobE3w?pwd=fqz1" target="_blank" rel="noopener" class="cloud-btn">百度网盘</a>
+                            <a href="https://pan.quark.cn/s/32fb771ff601" target="_blank" rel="noopener" class="cloud-btn">夸克</a>
+                            <a href="https://pan.xunlei.com/s/VP4lg3RjD_BP8kN7hkeC5pCoA1?pwd=5inj" target="_blank" rel="noopener" class="cloud-btn">迅雷</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 番茄工具箱 Modal -->
+    <div class="modal-overlay" id="fqgjx-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-close="fqgjx-modal" aria-label="关闭">✕</button>
+            <h2 class="modal-title">番茄工具箱</h2>
+            <p class="modal-dev"><span>开发者：</span> <span>。</span></p>
+            <div class="modal-section">
+                <h3>软件简介</h3>
+                <p>一款集专注时钟、进制转换、文本处理、图片转换、二维码生成与计算器于一体的离线实用工具箱，所有处理均在本机完成，不上传任何内容。</p>
+            </div>
+            <div class="modal-section">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>专注时钟：可配置的番茄钟计时器</li>
+                    <li>进制转换：支持 2–36 任意进制、超大整数与负数</li>
+                    <li>文本处理：字符数、单词数、行数、UTF-8 字节统计</li>
+                    <li>图片转换：PNG / JPG / WEBP 格式互转、Base64 编码、SVG 矢量化</li>
+                    <li>二维码生成：离线生成，支持中文</li>
+                    <li>计算器与单位转换：四则运算、括号、百分比及常用单位换算</li>
+                </ul>
+            </div>
+            <div class="modal-section">
+                <h3>使用</h3>
+                <p>点击下方按钮进入工具页面，选择所需功能即可使用，无需联网。</p>
+            </div>
+            <div class="modal-actions">
+                <a href="https://fqgjx.pages.dev" target="_blank" rel="noopener" class="modal-btn">前往使用 →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ECG Modal -->
+    <div class="modal-overlay" id="ecg-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-close="ecg-modal" aria-label="关闭">✕</button>
+            <h2 class="modal-title">ECG · 心电监护</h2>
+            <p class="modal-dev"><span>开发者：</span> <span>。</span></p>
+            <div class="modal-section">
+                <h3>软件简介</h3>
+                <p>黑白极简的浏览器心电监护页面。通过 Web Bluetooth 直连心率设备，实时绘制 ECG 波形，每次心跳迸发白色星光。</p>
+            </div>
+            <div class="modal-section">
+                <h3>主要功能</h3>
+                <ul>
+                    <li>Web Bluetooth 直连支持标准 BLE 心率服务（0x180D）的设备</li>
+                    <li>200Hz 采样实时心电图，P/Q/R/S/T 五波叠加</li>
+                    <li>每次 R 峰触发白色星光粒子与涟漪</li>
+                    <li>黑白极简视觉</li>
+                    <li>未连接设备时可切换模拟模式，拖动速度滑块模拟 68–180 BPM</li>
+                    <li>内置兼容设备列表</li>
+                </ul>
+            </div>
+            <div class="modal-section">
+                <h3>兼容设备（部分）</h3>
+                <p>华为、Polar、Garmin、Wahoo、小米/Amazfit、Samsung、Apple Watch、Suunto 等支持标准 BLE 心率服务的设备均可连接，部分手表需先在设备端开启心率广播。</p>
+            </div>
+            <div class="modal-actions">
+                <a href="https://xinlv.pages.dev" target="_blank" rel="noopener" class="modal-btn">前往使用 →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- WUJING Modal -->
+    <div class="modal-overlay" id="wujing-modal">
+        <div class="modal-content">
+            <button class="modal-close" data-close="wujing-modal" aria-label="关闭">✕</button>
+            <h2 class="modal-title">WUJING ·無境</h2>
+            <p class="modal-dev"><span>团队：</span> <span>综合创作团队</span></p>
+            <div class="modal-section">
+                <h3>团队简介</h3>
+                <p>「無境」，意为没有边界——创作不应被形式束缚。</p>
+                <p style="margin-top: 0.6rem;">WUJING ·無境 是一支综合创作团队，由无他与风起多意创立于2025年末。我们致力于极简的设计、卓越的执行，把每一个想法打磨成可交付的极致作品。</p>
+                <p style="margin-top: 0.6rem;">我们坚持以赤诚之心悉心打磨造就卓越，为我们的用户呈上最好的臻品。我们的目标只有两点：坚持，进步。</p>
+                <p style="margin-top: 0.6rem;">愿我们的心之理想，永无边界。</p>
+            </div>
+            <div class="modal-actions">
+                <a href="https://wujingcn.top/" target="_blank" rel="noopener" class="modal-btn">立即体验 →</a>
+                <a href="https://wujingwebsitethetop.pages.dev/" target="_blank" rel="noopener" class="modal-btn modal-btn-secondary">备用网站</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 成员模态框 ================= -->
+    <!-- 成员 1 -->
+    <div class="modal-overlay" id="member-modal-1">
+        <div class="modal-content member-modal-content">
+            <button class="modal-close" data-close="member-modal-1" aria-label="关闭">✕</button>
+            <h2 class="modal-title">成员信息</h2>
+            <div class="member-modal-header">
+                <img src="A3.jpg" alt="头像" class="member-modal-avatar">
+                <div class="member-modal-info">
+                    <div class="member-modal-name">名称：。</div>
+                    <span class="member-modal-role">运营 / 开发者</span>
+                </div>
+            </div>
+            <div class="member-modal-copy-section">
+                <div class="copy-item" data-copy="3864967973" role="button" tabindex="0">
+                    <span class="label">QQ号：</span>
+                    <span class="value">3864967973</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="暂不提供" role="button" tabindex="0">
+                    <span class="label">手机号：</span>
+                    <span class="value">暂不提供</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="kskbl114514@hotmail.com" role="button" tabindex="0">
+                    <span class="label">邮箱：</span>
+                    <span class="value">kskbl114514@hotmail.com</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>成员介绍</h3>
+                <p>我真的不是给。爱用AI的啥b。</p>
+            </div>
+            <div class="modal-section">
+                <h3>开发网站：</h3>
+                <div class="member-apps-grid">
+                    <div class="submenu-app" data-scroll="tomato-card" role="button" tabindex="0">
+                        <img src="A1.png" alt="番茄钟" class="submenu-app-icon">
+                        <span class="submenu-app-name">番茄钟</span>
+                    </div>
+                    <div class="submenu-app" data-scroll="fqgjx-card" role="button" tabindex="0">
+                        <div class="submenu-app-icon" style="background: linear-gradient(135deg, #ff6b4a, #ff9a7a); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🧰</div>
+                        <span class="submenu-app-name">番茄工具箱</span>
+                    </div>
+                    <div class="submenu-app" data-scroll="ecg-card" role="button" tabindex="0">
+                        <img src="A2.png" alt="ECG" class="submenu-app-icon">
+                        <span class="submenu-app-name">ECG · 心电监护</span>
+                    </div>
+                    <div class="submenu-app" data-scroll="top" role="button" tabindex="0">
+                        <span class="submenu-app-placeholder">🏠</span>
+                        <span class="submenu-app-name">本站</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成员 2 -->
+    <div class="modal-overlay" id="member-modal-2">
+        <div class="modal-content member-modal-content">
+            <button class="modal-close" data-close="member-modal-2" aria-label="关闭">✕</button>
+            <h2 class="modal-title">成员信息</h2>
+            <div class="member-modal-header">
+                <img src="A4.jpg" alt="头像" class="member-modal-avatar">
+                <div class="member-modal-info">
+                    <div class="member-modal-name">名称：青山依旧</div>
+                    <span class="member-modal-role">视频宣发（抖音）</span>
+                </div>
+            </div>
+            <div class="member-modal-copy-section">
+                <div class="copy-item" data-copy="3984650160" role="button" tabindex="0">
+                    <span class="label">QQ号：</span>
+                    <span class="value">3984650160</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="不知道" role="button" tabindex="0">
+                    <span class="label">手机号：</span>
+                    <span class="value">不知道</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="xpq.8888.8888.8888@petalmail.com" role="button" tabindex="0">
+                    <span class="label">邮箱：</span>
+                    <span class="value">xpq.8888.8888.8888@petalmail.com</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="XPQ00001" role="button" tabindex="0">
+                    <span class="label">抖音号：</span>
+                    <span class="value">XPQ00001</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>成员介绍</h3>
+                <p>一名初中生，负责在抖音上发视频</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成员 3 -->
+    <div class="modal-overlay" id="member-modal-3">
+        <div class="modal-content member-modal-content">
+            <button class="modal-close" data-close="member-modal-3" aria-label="关闭">✕</button>
+            <h2 class="modal-title">成员信息</h2>
+            <div class="member-modal-header">
+                <img src="A6.JPG" alt="头像" class="member-modal-avatar">
+                <div class="member-modal-info">
+                    <div class="member-modal-name">名称：无他</div>
+                    <span class="member-modal-role">合作伙伴</span>
+                </div>
+            </div>
+            <div class="member-modal-copy-section">
+                <div class="copy-item" data-copy="info@wujingcn.top" role="button" tabindex="0">
+                    <span class="label">邮箱：</span>
+                    <span class="value">info@wujingcn.top</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>成员介绍</h3>
+                <p>高中生一名，国家级帆船运动员，無境团队创始人之一，坚持卓越的设计理念。</p>
+            </div>
+            <div class="modal-section">
+                <h3>开发网站：</h3>
+                <div class="member-apps-grid">
+                    <div class="submenu-app" data-scroll="wujing-card" role="button" tabindex="0">
+                        <img src="A5.jpg" alt="WUJING ·無境" class="submenu-app-icon">
+                        <span class="submenu-app-name">WUJING ·無境</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成员 4 -->
+    <div class="modal-overlay" id="member-modal-4">
+        <div class="modal-content member-modal-content">
+            <button class="modal-close" data-close="member-modal-4" aria-label="关闭">✕</button>
+            <h2 class="modal-title">成员信息</h2>
+            <div class="member-modal-header">
+                <img src="A8.jpg" alt="头像" class="member-modal-avatar">
+                <div class="member-modal-info">
+                    <div class="member-modal-name">名称：无</div>
+                    <span class="member-modal-role">开发者</span>
+                </div>
+            </div>
+            <div class="member-modal-copy-section">
+                <div class="copy-item" data-copy="1783257697" role="button" tabindex="0">
+                    <span class="label">QQ号：</span>
+                    <span class="value">1783257697</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="zingkin549@gmail.com" role="button" tabindex="0">
+                    <span class="label">邮箱：</span>
+                    <span class="value">zingkin549@gmail.com</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>成员介绍</h3>
+                <p>我是人</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成员 5 -->
+    <div class="modal-overlay" id="member-modal-5">
+        <div class="modal-content member-modal-content">
+            <button class="modal-close" data-close="member-modal-5" aria-label="关闭">✕</button>
+            <h2 class="modal-title">成员信息</h2>
+            <div class="member-modal-header">
+                <div class="member-modal-avatar placeholder">?</div>
+                <div class="member-modal-info">
+                    <div class="member-modal-name">名称：（待填写）</div>
+                    <span class="member-modal-role">成员</span>
+                </div>
+            </div>
+            <div class="member-modal-copy-section">
+                <div class="copy-item" data-copy="" role="button" tabindex="0">
+                    <span class="label">QQ号：</span>
+                    <span class="value">（待填写）</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="" role="button" tabindex="0">
+                    <span class="label">手机号：</span>
+                    <span class="value">（待填写）</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="" role="button" tabindex="0">
+                    <span class="label">邮箱：</span>
+                    <span class="value">（待填写）</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>成员介绍</h3>
+                <p class="empty">（介绍待填写）</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成员 6 -->
+    <div class="modal-overlay" id="member-modal-6">
+        <div class="modal-content member-modal-content">
+            <button class="modal-close" data-close="member-modal-6" aria-label="关闭">✕</button>
+            <h2 class="modal-title">成员信息</h2>
+            <div class="member-modal-header">
+                <div class="member-modal-avatar placeholder">?</div>
+                <div class="member-modal-info">
+                    <div class="member-modal-name">名称：（待填写）</div>
+                    <span class="member-modal-role">成员</span>
+                </div>
+            </div>
+            <div class="member-modal-copy-section">
+                <div class="copy-item" data-copy="" role="button" tabindex="0">
+                    <span class="label">QQ号：</span>
+                    <span class="value">（待填写）</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="" role="button" tabindex="0">
+                    <span class="label">手机号：</span>
+                    <span class="value">（待填写）</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+                <div class="copy-item" data-copy="" role="button" tabindex="0">
+                    <span class="label">邮箱：</span>
+                    <span class="value">（待填写）</span>
+                    <span class="copy-badge">点击复制</span>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3>成员介绍</h3>
+                <p class="empty">（介绍待填写）</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 悬浮圆形音符图标 (点击提示版权) -->
+    <div class="music-player" id="music-player">
+        <button class="music-toggle" id="music-toggle" aria-label="音乐播放器">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
